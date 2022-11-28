@@ -1,0 +1,41 @@
+server {
+    listen 80;
+    server_name ${SERVER_NAME};
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name ${SERVER_NAME};
+    ssl_certificate /etc/nginx/ssl/tls.crt;
+    ssl_certificate_key /etc/nginx/ssl/tls.key;
+    ssl_ciphers 'kEECDH+ECDSA+AES128 kEECDH+ECDSA+AES256 kEECDH+AES128 kEECDH+AES256 kEDH+AES128 kEDH+AES256 DES-CBC3-SHA +SHA !aNULL !eNULL !LOW !kECDH !DSS !MD5 !RC4 !EXP !PSK !SRP !CAMELLIA !SEED';
+    ssl_protocols TLSv1.2;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    add_header Strict-Transport-Security max-age=15768000;
+   
+    location / {
+        include /etc/nginx/conf.d/common_location.conf;
+        proxy_pass http://webapp;
+    }
+
+	# location /xmpp-websocket {
+	#     proxy_pass http://webapp;
+	#     proxy_http_version 1.1;
+	#     proxy_set_header Upgrade $http_upgrade;
+	#     proxy_set_header Connection "upgrade";
+	# }
+	# location /colibri-ws {
+	#     proxy_pass http://webapp;
+	#     proxy_http_version 1.1;
+	#     proxy_set_header Upgrade $http_upgrade;
+	#     proxy_set_header Connection "upgrade";
+	# }
+	
+}
+
+upstream webapp {
+	server 10.100.100.33:8000;
+}
+
